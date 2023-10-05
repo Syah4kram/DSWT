@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Termometer Suhu Air</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        <script src="https://cdn.plot.ly/plotly-2.24.1.min.js" charset="utf-8"></script>
+        <style>
+            html, body{
+                margin:0;
+                padding:0;
+                height:100%
+            }
+            .container-fluid{
+                margin: 0 auto;
+                height: 95%;
+            }
+        </style>
+    </head>
+    <body class="text-center">
+        <div class="container-fluid">
+            <div class="text-bg-light">
+                <header>
+                    <br>
+                    <h1>Termometer Suhu Air</h1>
+                    <br>
+                </header>
+            </div>
+            <br>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card text-bg-success">
+                            <h3 class="card-header">Suhu Air Rata-Rata</h3>
+                            <div class="card-body">
+                                <p><span id="tstavg"></span></p>
+                                <h5><span id="tavg"></span><span><sup>o</sup>C</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card text-bg-danger">
+                            <h3 class="card-header">Suhu Air Maksimum</h3>
+                            <div class="card-body">
+                                <p><span id="tstmax"></span></p>
+                                <h5><span id="tmax"></span><span><sup>o</sup>C</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card text-bg-primary">
+                            <h3 class="card-header">Suhu Air Minimum</h3>
+                            <div class="card-body">
+                                <p><span id="tstmin"></span></p>
+                                <h5><span id="tmin"></span><span><sup>o</sup>C</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="container text-bg-light">
+                <div id="graph"></div>
+            </div>
+        </div>
+        <footer class="text-bg-light">
+            <br>
+            <p>Copyright 2023 @ Staklim Sulut</p>
+        </footer>
+        <script>
+            async function getData() {
+                var tavg = []
+                var tmax = []
+                var tmin = []
+                var index = []
+
+                const length = 50
+                //const response = await fetch(`https://api.thingspeak.com/channels/1919140/feeds.json?results=${length}`);
+                const response = await fetch(`http://127.0.0.1:5000/returnjson`);
+                const data = await response.json();
+                console.log(data)
+
+                for(var i = 0; i < length; i++){
+                    index.push(data.feeds[i].created_at)
+
+                    tavg.push(data.feeds[i].field1)
+                    tmax.push(data.feeds[i].field2)
+                    tmin.push(data.feeds[i].field3)
+                }
+
+                ttavg = data.feeds[length-1].field1
+                tstavg = 'YYYY-MM-DDTHH:MM:SS'
+                ttmax = -127
+                tstmax = 'YYYY-MM-DDTHH:MM:SS'
+                ttmin = 1000
+                tstmin = 'YYYY-MM-DDTHH:MM:SS'
+
+                for(var i = 0; i < length; i++){
+                    if(tmax[i] > ttmax){
+                        ttmax = tmax[i]
+                        dt = new Date(index[i])
+                        tstmax = dt.toLocaleString()
+                    }
+                    if(tmin[i]< ttmin){
+                        ttmin = tmin[i]
+                        dt = new Date(index[i])
+                        tstmin = dt.toLocaleString()
+                    }
+                }
+
+                dt = new Date(index[length-1])
+                tstavg = dt.toLocaleString()
+
+                var graphdata = [
+                    {x: index, y: tavg, name: "Suhu Rata-rata", },
+                    {x: index, y: tmax, name: "Suhu Maksimal", },
+                    {x: index, y: tmin, name: "Suhu Minimal", }
+                ];
+                
+                const layout = {title: "Grafik Data"};
+                Plotly.purge("graph");
+                Plotly.react("graph", graphdata, layout);
+
+                document.getElementById('tavg').innerHTML = ttavg
+                document.getElementById('tmax').innerHTML = ttmax
+                document.getElementById('tmin').innerHTML = ttmin
+                document.getElementById('tstavg').innerHTML = tstavg
+                document.getElementById('tstmax').innerHTML = tstmax
+                document.getElementById('tstmin').innerHTML = tstmin
+            }
+
+            async function cleanData(){
+                const del = await fetch(`http://127.0.0.1:5000/cleandata`);
+            }
+
+            function loop(){
+                setTimeout(function(){
+                    console.log(people)
+                    getData()
+                    cleanData()
+                }, 15000 )
+            }
+
+            loop()
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    </body>
+</html>
