@@ -5,7 +5,7 @@
 #include <WiFiClient.h>
 #include <LiquidCrystal_I2C.h>
 
-String serverName = "http://192.168.1.6:5000/adddata";
+String serverName = "http://192.168.1.35:5000/adddata";
 
 const char* ssid = "BMKG HOME";
 const char* password = "bmkg97012";
@@ -88,6 +88,15 @@ void loop() {
     }
     // Free resources
     http.end();
+    lcd.backlight();
+    lcd.setCursor(0,0);
+    lcd.print("Data sent");
+    lcd.clear();
+  } else {
+    lcd.backlight();
+    lcd.setCursor(0,0);
+    lcd.print("Data not send");
+    lcd.clear();
   }
   // Thingspeak
   /*
