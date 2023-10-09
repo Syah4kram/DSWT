@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Termometer Suhu Air</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-        <script src="https://cdn.plot.ly/plotly-2.24.1.min.js" charset="utf-8"></script>
+        <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        <script src="js/plotly.min.js" charset="utf-8"></script>
         <style>
             html, body{
                 margin:0;
@@ -59,15 +59,40 @@
                     </div>
                 </div>
             </div>
+            <br><br>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card text-bg-secondary">
+                            <h3 class="card-header">Suhu Air 07.30</h3>
+                            <div class="card-body">
+                                <h5><span id="tth"></span><span><sup>o</sup>C</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card text-bg-light">
+                            <h3 class="card-header">Suhu Air 13.30</h3>
+                            <div class="card-body">
+                                <h5><span id="ttb"></span><span><sup>o</sup>C</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card text-bg-secondary">
+                            <h3 class="card-header">Suhu Air 17.30</h3>
+                            <div class="card-body">
+                                <h5><span id="tlm"></span><span><sup>o</sup>C</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <br>
             <div class="container text-bg-light">
                 <div id="graph"></div>
             </div>
         </div>
-        <footer class="text-bg-light">
-            <br>
-            <p>Copyright 2023 @ Staklim Sulut</p>
-        </footer>
         <script>
             async function getData() {
                 var tavg = []
@@ -75,14 +100,18 @@
                 var tmin = []
                 var index = []
 
-                const length = 50
                 //const response = await fetch(`https://api.thingspeak.com/channels/1919140/feeds.json?results=${length}`);
-                const response = await fetch(`http://127.0.0.1:5000/returnjson`);
-                const data = await response.json();
+                var response = await fetch(`http://192.168.1.35:5000/returnjson`);
+                var data = await response.json();
                 console.log(data)
+                var length = data.feeds.length
+                var today = new Date()
+                var utcdate = today.getUTCDay()
 
                 for(var i = 0; i < length; i++){
-                    index.push(data.feeds[i].created_at)
+                    var t = new Date(data.feeds[i].created_at)
+                    var tadd = new Date(t + (60*60*8))
+                    index.push(tadd)
 
                     tavg.push(data.feeds[i].field1)
                     tmax.push(data.feeds[i].field2)
@@ -95,8 +124,13 @@
                 tstmax = 'YYYY-MM-DDTHH:MM:SS'
                 ttmin = 1000
                 tstmin = 'YYYY-MM-DDTHH:MM:SS'
+                tth = 0
+                ttb = 0
+                tlm = 0
 
                 for(var i = 0; i < length; i++){
+                    t = new Date(index[i])
+                    sdt = new Date(t + (60*60*8))
                     if(tmax[i] > ttmax){
                         ttmax = tmax[i]
                         dt = new Date(index[i])
@@ -106,6 +140,15 @@
                         ttmin = tmin[i]
                         dt = new Date(index[i])
                         tstmin = dt.toLocaleString()
+                    }
+                    if(sdt.getDay() == utcdate &&  sdt.getHours() == 7 && sdt.getMinutes() > 0 && sdt.getMinutes() < 10){
+                        tth = tavg[i]
+                    }
+                    if(sdt.getDay() == utcdate && sdt.getHours() == 13 && sdt.getMinutes() > 0 && sdt.getMinutes() < 10){
+                        ttb = tavg[i]
+                    }
+                    if(sdt.getDay() == utcdate && sdt.getHours() == 17 && sdt.getMinutes() > 0 && sdt.getMinutes() < 10){
+                        tlm = tavg[i]
                     }
                 }
 
@@ -119,9 +162,10 @@
                 ];
                 
                 const layout = {title: "Grafik Data"};
-                Plotly.purge("graph");
                 Plotly.react("graph", graphdata, layout);
-
+                document.getElementById('tth').innerHTML = tth
+                document.getElementById('ttb').innerHTML = ttb
+                document.getElementById('tlm').innerHTML = tlm
                 document.getElementById('tavg').innerHTML = ttavg
                 document.getElementById('tmax').innerHTML = ttmax
                 document.getElementById('tmin').innerHTML = ttmin
@@ -131,19 +175,22 @@
             }
 
             async function cleanData(){
-                const del = await fetch(`http://127.0.0.1:5000/cleandata`);
+                const del = await fetch(`http://192.168.1.35:5000/cleandata`);
             }
 
             function loop(){
-                setTimeout(function(){
-                    console.log(people)
+                setTimeout(()=>{
+                    Plotly.purge("graph");
+                    console.log('check data')
                     getData()
                     cleanData()
-                }, 15000 )
+                    loop()
+                }, 15000)
             }
-
+            cleanData()
+            getData()
             loop()
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+        <script src="js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
     </body>
 </html>
