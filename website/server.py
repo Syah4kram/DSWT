@@ -4,11 +4,11 @@ from datetime import datetime
 import os
 import json
 
-filename = 'static/json/data.json'
+filename = 'D:/termometer-air/static/json/data.json'
 listObj = []
 
 app = Flask(__name__, static_url_path="", static_folder='static')
-JSON_FOLDER = 'static/json'
+JSON_FOLDER = 'D:/termometer-air/static/json'
 
 @app.route('/', methods=['GET', 'POST'])
 def viewdata():
@@ -17,7 +17,7 @@ def viewdata():
 @app.route('/returnjson', methods = ['GET'])
 def ReturnJSON():
     if(request.method == 'GET'):
-        data = json.load(open('static/json/data.json'))
+        data = json.load(open('D:/termometer-air/static/json/data.json'))
         return jsonify(data)
     
 @app.route('/adddata', methods=['GET', 'POST'])
@@ -27,7 +27,7 @@ def AddData():
             listObj = json.load(fp)
         l = len(listObj['feeds'])-1
 
-        now = datetime.now()
+        now = datetime.utcnow()
         dt_string = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         
         f1add = request.args.get('field1')
@@ -45,52 +45,91 @@ def AddData():
         with open(filename, 'w') as json_file:
             json.dump(listObj, json_file, indent=4, separators=(',',': '))
             
-        data = json.load(open('static/json/data.json'))
-        return jsonify(data)
+        data = json.load(open('D:/termometer-air/static/json/data.json'))
+        newlistObj = ""
+        nowdt = datetime.utcnow()
+        now = nowdt.timestamp()
+        jsonfile=open(filename)
+        listObj = json.load(jsonfile)
 
-@app.route('/cleandata', methods=['GET', 'POST'])
-def cleanData():
-    newlistObj = ""
-    nowdt = datetime.now()
-    now = nowdt.timestamp()
-    jsonfile=open(filename)
-    listObj = json.load(jsonfile)
-    l = len(listObj['feeds'])-1
-
-    for i in range(l, -1, -1):
+        
         jsonfile=open(filename)
         readlistObj = json.load(jsonfile)
-        dt = str(readlistObj['feeds'][i]['created_at'])
+        dt = str(readlistObj['feeds'][0]['created_at'])
         dt_string = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%SZ")
         epoch = dt_string.timestamp()
 
         if(now-epoch > 86400):
-            jsonpath = 'static/json/' + str(datetime.strftime(dt_string, "%d%m%Y")) + '.json'
+            jsonpath = 'D:/termometer-air/static/json/' + str(datetime.strftime(dt_string, "%d%m%Y")) + '.json'
             if(os.path.exists(jsonpath) == False):
                 with open(jsonpath, 'w') as json_file:
                     newfile = {'feeds': []}
-                    newfile['feeds'].append(readlistObj['feeds'][i])
+                    newfile['feeds'].append(readlistObj['feeds'][0])
                     json.dump(newfile, json_file, indent=4, separators=(',',': '))
             else:
                 with open(jsonpath) as fp:
                     newlistObj = json.load(fp)
-                
+                    
                 newlistObj['feeds'].append({
-                    "created_at": readlistObj['feeds'][i]['created_at'],
-                    "entry_id": readlistObj['feeds'][i]['entry_id'],
-                    "field1": readlistObj['feeds'][i]['field1'],
-                    "field2": readlistObj['feeds'][i]['field2'],
-                    "field3": readlistObj['feeds'][i]['field3']
+                    "created_at": readlistObj['feeds'][0]['created_at'],
+                    "entry_id": readlistObj['feeds'][0]['entry_id'],
+                    "field1": readlistObj['feeds'][0]['field1'],
+                    "field2": readlistObj['feeds'][0]['field2'],
+                    "field3": readlistObj['feeds'][0]['field3']
                 })
                 with open(jsonpath, 'w') as json_file:
                     json.dump(newlistObj, json_file, indent=4, separators=(',',': '))
-            listObj['feeds'].pop()
-    
-    with open(filename, 'w') as json_file:
-        json.dump(listObj, json_file, indent=4, separators=(',',': '))
+            listObj['feeds'].pop(0)
+        
+        with open(filename, 'w') as json_file:
+            json.dump(listObj, json_file, indent=4, separators=(',',': '))
 
-    return jsonify(newlistObj)
+        return jsonify(data)
+
+@app.route('/cleardata', methods=['GET'])
+def clearData():
+    if(request.method == 'GET'):
+        data = json.load(open('D:/termometer-air/static/json/data.json'))
+        newlistObj = ""
+        nowdt = datetime.utcnow()
+        now = nowdt.timestamp()
+        jsonfile=open(filename)
+        listObj = json.load(jsonfile)
+
+        
+        jsonfile=open(filename)
+        readlistObj = json.load(jsonfile)
+        dt = str(readlistObj['feeds'][0]['created_at'])
+        dt_string = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%SZ")
+        epoch = dt_string.timestamp()
+
+        if(now-epoch > 86400):
+            jsonpath = 'D:/termometer-air/static/json/' + str(datetime.strftime(dt_string, "%d%m%Y")) + '.json'
+            if(os.path.exists(jsonpath) == False):
+                with open(jsonpath, 'w') as json_file:
+                    newfile = {'feeds': []}
+                    newfile['feeds'].append(readlistObj['feeds'][0])
+                    json.dump(newfile, json_file, indent=4, separators=(',',': '))
+            else:
+                with open(jsonpath) as fp:
+                    newlistObj = json.load(fp)
+                    
+                newlistObj['feeds'].append({
+                    "created_at": readlistObj['feeds'][0]['created_at'],
+                    "entry_id": readlistObj['feeds'][0]['entry_id'],
+                    "field1": readlistObj['feeds'][0]['field1'],
+                    "field2": readlistObj['feeds'][0]['field2'],
+                    "field3": readlistObj['feeds'][0]['field3']
+                })
+                with open(jsonpath, 'w') as json_file:
+                    json.dump(newlistObj, json_file, indent=4, separators=(',',': '))
+            listObj['feeds'].pop(0)
+        
+        with open(filename, 'w') as json_file:
+            json.dump(listObj, json_file, indent=4, separators=(',',': '))
+
+        return jsonify(data)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    #serve(app, host="0.0.0.0", port=5000)
+    #app.run(debug=True)
+    serve(app, host="192.168.1.69", port=5000)
