@@ -1,198 +1,225 @@
 <!doctype html>
 <html lang="id">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Termometer Suhu Air</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-        <script src="js/plotly.min.js" charset="utf-8"></script>
-        <style>
-            html, body{
-                margin:0;
-                padding:0;
-                height:100%
-            }
-            .container-fluid{
-                margin: 0 auto;
-                height: 95%;
-            }
-        </style>
-    </head>
-    <body class="text-center">
-        <div class="container-fluid">
-            <div class="text-bg-light">
-                <header>
-                    <br>
-                    <h1>Termometer Suhu Air</h1>
-                    <br>
-                </header>
-            </div>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Termometer Suhu Air</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="js/plotly.min.js" charset="utf-8"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%
+        }
+
+        .container-fluid {
+            margin: 0 auto;
+            height: 95%;
+        }
+    </style>
+</head>
+
+<body class="text-center">
+    <div class="container-fluid">
+        <div class="text-bg-light">
+            <header>
+                <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                    <div class="container-fluid">
+                        <img src="img/bmkg.png" alt="logo-bmkg" height="50vw" style="margin-right: 1vw;">
+                        <a class="navbar-brand" href="/">Termometer Apung</a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" href="/">Halaman Utama</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/download">Unduh Data</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+        </div>
+        <br>
+        <main class="container">
+            <h1>Data Harian</h1>
             <br>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card text-bg-success">
-                            <h3 class="card-header">Suhu Air Rata-Rata</h3>
-                            <div class="card-body">
-                                <p><span id="tstavg"></span></p>
-                                <h5><span id="tavg"></span><span><sup>o</sup>C</span></h5>
-                            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card text-bg-success">
+                        <h3 class="card-header">Suhu Air Rata-Rata</h3>
+                        <div class="card-body">
+                            <p><span id="tstavg"></span></p>
+                            <h5><span id="tavg"></span><span><sup>o</sup>C</span></h5>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="card text-bg-danger">
-                            <h3 class="card-header">Suhu Air Maksimum</h3>
-                            <div class="card-body">
-                                <p><span id="tstmax"></span></p>
-                                <h5><span id="tmax"></span><span><sup>o</sup>C</span></h5>
-                            </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card text-bg-danger">
+                        <h3 class="card-header">Suhu Air Maksimum</h3>
+                        <div class="card-body">
+                            <p><span id="tstmax"></span></p>
+                            <h5><span id="tmax"></span><span><sup>o</sup>C</span></h5>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="card text-bg-primary">
-                            <h3 class="card-header">Suhu Air Minimum</h3>
-                            <div class="card-body">
-                                <p><span id="tstmin"></span></p>
-                                <h5><span id="tmin"></span><span><sup>o</sup>C</span></h5>
-                            </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card text-bg-primary">
+                        <h3 class="card-header">Suhu Air Minimum</h3>
+                        <div class="card-body">
+                            <p><span id="tstmin"></span></p>
+                            <h5><span id="tmin"></span><span><sup>o</sup>C</span></h5>
                         </div>
                     </div>
                 </div>
             </div>
-            <br><br>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card text-bg-secondary">
-                            <h3 class="card-header">Suhu Air 07.30</h3>
-                            <div class="card-body">
-                                <h5><span id="tth"></span><span><sup>o</sup>C</span></h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card text-bg-light">
-                            <h3 class="card-header">Suhu Air 13.30</h3>
-                            <div class="card-body">
-                                <h5><span id="ttb"></span><span><sup>o</sup>C</span></h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card text-bg-secondary">
-                            <h3 class="card-header">Suhu Air 17.30</h3>
-                            <div class="card-body">
-                                <h5><span id="tlm"></span><span><sup>o</sup>C</span></h5>
-                            </div>
+        </main>
+        <br><br>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card text-bg-secondary">
+                        <h3 class="card-header">Suhu Air 07.10</h3>
+                        <div class="card-body">
+                            <h5><span id="tth"></span><span><sup>o</sup>C</span></h5>
                         </div>
                     </div>
                 </div>
-            </div>
-            <br>
-            <div class="container text-bg-light">
-                <div id="graph"></div>
+                <div class="col-lg-4">
+                    <div class="card text-bg-light">
+                        <h3 class="card-header">Suhu Air 13.10</h3>
+                        <div class="card-body">
+                            <h5><span id="ttb"></span><span><sup>o</sup>C</span></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card text-bg-secondary">
+                        <h3 class="card-header">Suhu Air 17.10</h3>
+                        <div class="card-body">
+                            <h5><span id="tlm"></span><span><sup>o</sup>C</span></h5>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <script>
-            async function getData() {
-                var tavg = []
-                var tmax = []
-                var tmin = []
-                var index = []
-                var tl = 0
+        <br>
+        <div class="container text-bg-light">
+            <div id="graph"></div>
+        </div>
+    </div>
+    <script>
+        async function getData() {
+            var tavg = []
+            var tmax = []
+            var tmin = []
+            var index = []
+            var tl = 0
 
-                //const response = await fetch(`https://api.thingspeak.com/channels/1919140/feeds.json?results=${length}`);
-                var response = await fetch(`http://192.168.1.69:5000/returnjson`);
-                var data = await response.json();
-                console.log(data)
-                var length = data.feeds.length
-                var today = new Date()
-                var tDay = today.getDay()
-                var utcdate = today.getUTCDay()
-                var tbefore = new Date(today-86400000)
+            //const response = await fetch(`https://api.thingspeak.com/channels/1919140/feeds.json?results=${length}`);
+            var response = await fetch(`http://192.168.1.249:5000/returnjson`);
+            var data = await response.json();
+            var length = data.feeds.length
+            var today = new Date()
+            var tDay = today.getDay()
+            var utcdate = today.getUTCDay()
+            var tbefore = new Date(today - 86400000)
 
-                for(var i = 0; i < length; i++){
-                    var t = new Date(data.feeds[i].created_at)
-                    var tadd = new Date(t + (60*60*8))
-                    if (t > tbefore){
-                        index.push(tadd)
+            for (var i = 0; i < length; i++) {
+                var t = new Date(data.feeds[i].created_at)
+                var tadd = new Date(t + (60 * 60 * 8))
+                if (t > tbefore) {
+                    index.push(tadd)
 
-                        tavg.push(data.feeds[i].field1)
-                        tmax.push(data.feeds[i].field2)
-                        tmin.push(data.feeds[i].field3)
-                        tl++
-                    }
-                    
+                    tavg.push(data.feeds[i].field1)
+                    tmax.push(data.feeds[i].field2)
+                    tmin.push(data.feeds[i].field3)
+                    tl++
                 }
 
-                ttavg = data.feeds[length-1].field1
-                tstavg = 'YYYY-MM-DDTHH:MM:SS'
-                ttmax = -127
-                tstmax = 'YYYY-MM-DDTHH:MM:SS'
-                ttmin = 1000
-                tstmin = 'YYYY-MM-DDTHH:MM:SS'
-                tth = 0
-                ttb = 0
-                tlm = 0
+            }
 
-                for(var i = 0; i < length; i++){
-                    t = new Date(index[i])
-                    sdt = new Date(t + (60*60*8))
-                    if(tmax[i] > ttmax){
-                        ttmax = tmax[i]
-                        dt = new Date(index[i])
-                        tstmax = dt.toLocaleString()
-                    }
-                    if(tmin[i]< ttmin){
-                        ttmin = tmin[i]
-                        dt = new Date(index[i])
-                        tstmin = dt.toLocaleString()
-                    }
-                    if(sdt.getDay() == tDay &&  sdt.getHours() == 7 && sdt.getMinutes() > 0 && sdt.getMinutes() < 15){
-                        tth = tavg[i]
-                    }
-                    if(sdt.getDay() == tDay && sdt.getHours() == 13 && sdt.getMinutes() > 0 && sdt.getMinutes() < 15){
-                        ttb = tavg[i]
-                    }
-                    if(sdt.getDay() == tDay && sdt.getHours() == 17 && sdt.getMinutes() > 0 && sdt.getMinutes() < 15){
-                        tlm = tavg[i]
-                    }
+            ttavg = data.feeds[length - 1].field1
+            tstavg = 'YYYY-MM-DDTHH:MM:SS'
+            ttmax = -127
+            tstmax = 'YYYY-MM-DDTHH:MM:SS'
+            ttmin = 1000
+            tstmin = 'YYYY-MM-DDTHH:MM:SS'
+            tth = 0
+            ttb = 0
+            tlm = 0
+
+            for (var i = 0; i < length; i++) {
+                t = new Date(index[i])
+                sdt = new Date(t + (60 * 60 * 8))
+                if (tmax[i] > ttmax) {
+                    ttmax = tmax[i]
+                    dt = new Date(index[i])
+                    tstmax = dt.toLocaleString()
                 }
-
-                dt = new Date(index[tl-1])
-                tstavg = dt.toLocaleString()
-
-                var graphdata = [
-                    {x: index, y: tavg, name: "Suhu Rata-rata", },
-                    {x: index, y: tmax, name: "Suhu Maksimal", },
-                    {x: index, y: tmin, name: "Suhu Minimal", }
-                ];
-                
-                const layout = {title: "Grafik Data"};
-                Plotly.react("graph", graphdata, layout);
-                document.getElementById('tth').innerHTML = tth
-                document.getElementById('ttb').innerHTML = ttb
-                document.getElementById('tlm').innerHTML = tlm
-                document.getElementById('tavg').innerHTML = ttavg
-                document.getElementById('tmax').innerHTML = ttmax
-                document.getElementById('tmin').innerHTML = ttmin
-                document.getElementById('tstavg').innerHTML = tstavg
-                document.getElementById('tstmax').innerHTML = tstmax
-                document.getElementById('tstmin').innerHTML = tstmin
+                if (tmin[i] < ttmin) {
+                    ttmin = tmin[i]
+                    dt = new Date(index[i])
+                    tstmin = dt.toLocaleString()
+                }
+                if (sdt.getDay() == tDay && sdt.getHours() == 7 && sdt.getMinutes() > 0 && sdt.getMinutes() < 10) {
+                    tth = tavg[i]
+                }
+                if (sdt.getDay() == tDay && sdt.getHours() == 13 && sdt.getMinutes() > 0 && sdt.getMinutes() < 10) {
+                    ttb = tavg[i]
+                }
+                if (sdt.getDay() == tDay && sdt.getHours() == 17 && sdt.getMinutes() > 0 && sdt.getMinutes() < 10) {
+                    tlm = tavg[i]
+                }
             }
 
+            dt = new Date(index[tl - 1])
+            tstavg = dt.toLocaleString()
 
-            function loop(){
-                setTimeout(()=>{
-                    Plotly.purge("graph");
-                    console.log('check data')
-                    getData()
-                    loop()
-                }, 60000)
-            }
-            getData()
-            loop()
-        </script>
-        <script src="js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-    </body>
+            var graphdata = [
+                { x: index, y: tavg, name: "Suhu Rata-rata", },
+                { x: index, y: tmax, name: "Suhu Maksimal", },
+                { x: index, y: tmin, name: "Suhu Minimal", }
+            ];
+
+            const layout = { title: "Grafik Data" };
+            Plotly.react("graph", graphdata, layout);
+            document.getElementById('tth').innerHTML = tth
+            document.getElementById('ttb').innerHTML = ttb
+            document.getElementById('tlm').innerHTML = tlm
+            document.getElementById('tavg').innerHTML = ttavg
+            document.getElementById('tmax').innerHTML = ttmax
+            document.getElementById('tmin').innerHTML = ttmin
+            document.getElementById('tstavg').innerHTML = tstavg
+            document.getElementById('tstmax').innerHTML = tstmax
+            document.getElementById('tstmin').innerHTML = tstmin
+        }
+
+
+        function loop() {
+            setTimeout(() => {
+                Plotly.purge("graph");
+                console.log('check data')
+                getData()
+                loop()
+            }, 60000)
+        }
+        getData()
+        loop()
+    </script>
+    <script src="js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+</body>
+
 </html>
